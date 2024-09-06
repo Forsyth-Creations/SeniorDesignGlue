@@ -5,12 +5,17 @@ function createWindow () {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
+    // autoHideMenuBar: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: true, // Ensure Node.js integration if needed
+      contextIsolation: false,
+      enableRemoteModule: true,
     }
   })
 
   win.loadFile('out/index.html')
+
 }
 
 app.whenReady().then(() => {

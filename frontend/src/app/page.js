@@ -1,95 +1,111 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+import React, { useState } from 'react';
+import { AppBar, Toolbar, Typography, IconButton, Drawer, List, ListItem, ListItemText, Box, CssBaseline, Divider } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+const drawerWidth = 240;
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#000000',
+    },
+    secondary: {
+      main: '#ffffff',
+    },
+  },
+});
+
+const App = () => {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState('');
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const drawer = (
+    <div>
+      <Toolbar />
+      <Divider />
+      <List>
+        {['Generate Advertisement PDF', 'Project Selection Survey', 'Project Team Assignments and Stats', 
+          'SME Advertisements and Stats', 'Mentor Assignment', 'Canvas Group Files', 'Generate Expo book']
+          .map((text) => (
+            <ListItem key={text} onClick={() => setSelectedOption(text)}>
+              <ListItemText primary={text} />
+            </ListItem>
+        ))}
+      </List>
     </div>
   );
-}
+
+  const renderContent = () => {
+    switch (selectedOption) {
+      case 'Generate Advertisement PDF':
+        return <Typography variant="h6">Generate Advertisement PDF Content</Typography>;
+      case 'Project Selection Survey':
+        return <Typography variant="h6">Project Selection Survey Content</Typography>;
+      case 'Project Team Assignments and Stats':
+        return <Typography variant="h6">Project Team Assignments and Stats Content</Typography>;
+      case 'SME Advertisements and Stats':
+        return <Typography variant="h6">SME Advertisements and Stats Content</Typography>;
+      case 'Mentor Assignment':
+        return <Typography variant="h6">Mentor Assignment Content</Typography>;
+      case 'Canvas Group Files':
+        return <Typography variant="h6">Canvas Group Files Content</Typography>;
+      case 'Generate Expo book':
+        return <Typography variant="h6">Generate Expo book Content</Typography>;
+      default:
+        return <Typography variant="h6">Please select an option from the sidebar</Typography>;
+    }
+  };
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Box sx={{ display: 'flex' }}>
+        <CssBaseline />
+        <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" noWrap>
+              Senior Design Glue. Open: {JSON.stringify(mobileOpen)}
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        {/* Drawer for mobile devices */}
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{
+            keepMounted: true, // Better open performance on mobile.
+          }}
+          // sx={{
+          //   [`& .MuiDrawer-paper`]: { width: drawerWidth },
+          // }}
+        >
+          {drawer}
+        </Drawer>
+        <Box
+          component="main"
+          sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
+        >
+          <Toolbar />
+          {renderContent()}
+        </Box>
+      </Box>
+    </ThemeProvider>
+  );
+};
+
+export default App;
