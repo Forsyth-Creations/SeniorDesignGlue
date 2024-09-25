@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: test
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data/pgdata
+      - ./to_restore:/to_restore
+    restart: always
+  viewer:
+    image: adminer
+    ports:
+      - "8080:8080"    
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/frontend/src
+    depends_on:
+      - postgres
+    restart: always
+  backend:
+    build:     
+      context: ./backend
+    # command: uvicorn app.server:app --host 0.0.0.0 --port 5000 --reload
+    volumes:
+      - ./backend/app:/backend/app
+    environment:
+      - PYTHONUNBUFFERED=1
+      # - MONGO_URI=mongodb://padua:password@mymongo:27017
+      - HOST=0.0.0.0
+    ports:
+      - "5000:5000"
