@@ -18,10 +18,14 @@ import {
   Paper,
   Stack,
   Tooltip,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Collapse,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TablePagination
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import DownloadIcon from "@mui/icons-material/Download"; // Import the Download icon
@@ -48,9 +52,20 @@ const theme = createTheme({
 function SqlHistoryItem({ query, onCopy, onDelete }) {
   const { data, isLoading, isError, refetch } = useSqlQuery(query);
   const [showResults, setShowResults] = useState(false); // State to control visibility of results
+  const [page, setPage] = useState(0); // Current page state
+  const [rowsPerPage, setRowsPerPage] = useState(10); // Rows per page
 
   const handleToggleResults = () => {
     setShowResults((prev) => !prev); // Toggle results visibility
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage); // Update the current page
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10)); // Update the rows per page
+    setPage(0); // Reset to first page when changing rows per page
   };
 
   return (
@@ -96,23 +111,57 @@ function SqlHistoryItem({ query, onCopy, onDelete }) {
         {showResults ? "Hide Results" : "Show Results"}
       </Button>
 
-      {/* Collapse for showing JSON results */}
+      {/* Collapse for showing results in a table format */}
       <Collapse in={showResults}>
         <Stack sx={{ mt: 2 }}>
           {isLoading && <Typography>Loading...</Typography>}
           {isError && (
             <Typography color="error">Error fetching results</Typography>
           )}
-          {data && (
-            <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
-              {JSON.stringify(data, null, 2)} {/* Formatting JSON */}
-            </pre>
+          {data && data.length > 0 && (
+            <>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      {Object.keys(data[0]).map((key) => (
+                        <TableCell key={key}>{key}</TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {data
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) // Paginate the data
+                      .map((row, rowIndex) => (
+                        <TableRow key={rowIndex}>
+                          {Object.values(row).map((value, colIndex) => (
+                            <TableCell key={colIndex}>{value}</TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[10, 25, 50]} // Options for rows per page
+                component="div"
+                count={data.length} // Total number of items
+                rowsPerPage={rowsPerPage} // Current rows per page
+                page={page} // Current page
+                onPageChange={handleChangePage} // Function to handle page change
+                onRowsPerPageChange={handleChangeRowsPerPage} // Function to handle rows per page change
+              />
+            </>
+          )}
+          {data && data.length === 0 && (
+            <Typography>No results found</Typography>
           )}
         </Stack>
       </Collapse>
     </Paper>
   );
 }
+
 
 const App = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
