@@ -21,7 +21,7 @@ docker compose up --build
 
 Once this is done, you will have access to the following:
 
-- [The Webapp: localhost:3000](localhost:3000)
+- [The Webapp: localhost:3000](http://localhost:3000)
 
 - [The Backend: localhost:5000/docs](http://localhost:5000/docs)
 
