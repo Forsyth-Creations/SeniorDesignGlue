@@ -21,11 +21,11 @@ docker compose up --build
 
 Once this is done, you will have access to the following:
 
-[The Webapp: localhost:3000](localhost:3000)
+- [The Webapp: localhost:3000](localhost:3000)
 
-[The Backend: localhost:5000/docs](http://localhost:5000/docs)
+- [The Backend: localhost:5000/docs](http://localhost:5000/docs)
 
-[The Adminer: localhost:8080](http://localhost:8080)
+- [The Adminer: localhost:8080](http://localhost:8080)
 
 Note the following credentials for the adminer:
 
