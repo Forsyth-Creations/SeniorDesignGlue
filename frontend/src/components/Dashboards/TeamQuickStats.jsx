@@ -12,8 +12,11 @@ import {
   Stack,
   Alert,
   Tooltip,
+  Button,
+  Paper,
 } from "@mui/material";
 import { useSqlQuery } from "../../hooks/sqlHooks";
+import Inventory2Icon from "@mui/icons-material/Inventory2";
 
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -26,6 +29,8 @@ const TeamQuickStats = () => {
   const [selectedSemester, setSelectedSemester] = useState("");
   const [selectedProject, setSelectedProject] = useState("");
   const [query2, setQuery2] = useState("");
+  const [showTeamMetrics, setShowTeamMetrics] = useState(false);
+  const [showProjectsOverview, setShowProjectsOverview] = useState(false);
 
   // Query for fetching projects based on selected semester/year
   const [projectQuery, setProjectQuery] = useState("");
@@ -53,6 +58,14 @@ const TeamQuickStats = () => {
       let query = `SELECT student_email FROM teams WHERE semester = '${char}' AND year = '${year}' AND sequence = ${selectedProject};`;
       setQuery2(query);
       console.log(query);
+      setShowTeamMetrics(true);
+    }
+
+    if (selectedSemester !== "" && selectedProject == "") {
+      setShowProjectsOverview(true);
+      setShowTeamMetrics(false);
+    } else {
+      setShowProjectsOverview(false);
     }
   }, [selectedSemester, selectedProject]);
 
@@ -75,10 +88,16 @@ const TeamQuickStats = () => {
   const handleSemesterChange = (event) => {
     setSelectedSemester(event.target.value);
     setSelectedProject(""); // Reset project selection when semester changes
+    setShowTeamMetrics(false);
   };
 
   const handleProjectChange = (event) => {
     setSelectedProject(event.target.value);
+  };
+
+  const moreInfoClicked = (project) => {
+    setSelectedProject(project.sequence);
+    setShowTeamMetrics(true);
   };
 
   if (isLoading) {
@@ -116,92 +135,217 @@ const TeamQuickStats = () => {
       </FormControl>
 
       {/* Project Dropdown */}
-      <FormControl fullWidth mt={2} disabled={!selectedSemester}>
-        <InputLabel id="project-dropdown-label">Select Project</InputLabel>
-        <Select
-          labelId="project-dropdown-label"
-          value={selectedProject}
-          label="Select Project"
-          onChange={handleProjectChange}
-          disabled={isProjectLoading || projectError}
+      <Box display="flex" alignItems="center">
+        {/* Project Dropdown */}
+        <FormControl
+          fullWidth
+          disabled={!selectedSemester}
+          sx={{ flexGrow: 1, mr: 2 }}
         >
-          {isProjectLoading ? (
-            <MenuItem disabled>
-              <CircularProgress size={24} />
-            </MenuItem>
-          ) : projectError ? (
-            <MenuItem disabled>Error loading projects</MenuItem>
-          ) : projectData && projectData.data.results.length > 0 ? (
-            projectData.data.results.map((project) => (
-              <MenuItem key={project.short_title} value={project.sequence}>
-                {project.semester}
-                {project.year}-{project.sequence}: {project.short_title}
+          <InputLabel id="project-dropdown-label">Select Project</InputLabel>
+          <Select
+            labelId="project-dropdown-label"
+            value={selectedProject}
+            label="Select Project"
+            onChange={handleProjectChange}
+            disabled={isProjectLoading || projectError}
+          >
+            {isProjectLoading ? (
+              <MenuItem disabled>
+                <CircularProgress size={24} />
               </MenuItem>
-            ))
-          ) : (
-            <MenuItem disabled>No projects found</MenuItem>
-          )}
-        </Select>
-      </FormControl>
+            ) : projectError ? (
+              <MenuItem disabled>Error loading projects</MenuItem>
+            ) : projectData && projectData?.data.results.length > 0 ? (
+              projectData?.data.results.map((project) => (
+                <MenuItem key={project.short_title} value={project.sequence}>
+                  {project.semester}
+                  {project.year}-{project.sequence}: {project.short_title}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem disabled>No projects found</MenuItem>
+            )}
+          </Select>
+        </FormControl>
 
-      {/* Display Emails */}
-      <LockerAssignment
-        semester={selectedSemester[0]}
-        sequence={selectedProject}
-        year={selectedSemester.substring(1)}
-      />
+        {/* Clear Button */}
+        <Button
+          onClick={() => handleProjectChange({ target: { value: "" } })}
+          disabled={isProjectLoading || projectError || !selectedProject}
+          sx={{ whiteSpace: "nowrap" }}
+        >
+          Clear
+        </Button>
+      </Box>
 
-      {/* If every student has lab safety completed, show that. Otherwise show a warning */}
-      <LabSafety semester={selectedSemester[0]} sequence={selectedProject} year={selectedSemester.substring(1)} />
+      {showProjectsOverview ? (
+        <Stack spacing={1}>
+          <Typography variant="h6">Projects Overview:</Typography>
+          {projectData?.data.results.map((project, index) => (
+            <ProjectOverviewBar
+              key={index}
+              project={project}
+              onMoreInfoClick={moreInfoClicked}
+            />
+          ))}
+        </Stack>
+      ) : null}
 
-      <ProjectDescription
-        semester={selectedSemester[0]}
-        sequence={selectedProject}
-        year={selectedSemester.substring(1)}
-      />
+      {showTeamMetrics && (
+        <Stack spacing={2}>
+          {/* Display Emails */}
+          <LockerAssignment
+            semester={selectedSemester[0]}
+            sequence={selectedProject}
+            year={selectedSemester.substring(1)}
+          />
 
-      <Box>
-        {isLoading2 ? (
-          <CircularProgress />
-        ) : error2 && false ? (
-          <p>Error fetching students: {error2.message}</p>
-        ) : data2 && data2.data.results.length > 0 ? (
+          {/* If every student has lab safety completed, show that. Otherwise show a warning */}
+          <LabSafety
+            semester={selectedSemester[0]}
+            sequence={selectedProject}
+            year={selectedSemester.substring(1)}
+          />
+
+          <ProjectDescription
+            semester={selectedSemester[0]}
+            sequence={selectedProject}
+            year={selectedSemester.substring(1)}
+          />
+
           <Box>
-            <Typography variant="h6">Students:</Typography>
-            {data2.data.results.map((student, index) => (
-              <Student key={index} student={student} />
-            ))}
+            {isLoading2 ? (
+              <CircularProgress />
+            ) : error2 && false ? (
+              <p>Error fetching students: {error2.message}</p>
+            ) : data2 && data2.data.results.length > 0 ? (
+              <Box>
+                <Typography variant="h6">Students:</Typography>
+                {data2.data.results.map((student, index) => (
+                  <Student key={index} student={student} />
+                ))}
+              </Box>
+            ) : (
+              <Typography variant="body1">
+                No students found for this project and semester.
+              </Typography>
+            )}
           </Box>
-        ) : (
-          <Typography variant="body1">
-            No students found for this project and semester.
-          </Typography>
-        )}
-      </Box>
 
-      {/* Display Mentors */}
-      <Box>
-        <Mentors
-          semester={selectedSemester[0]}
-          sequence={selectedProject}
-          year={selectedSemester.substring(1)}
-        />
-      </Box>
+          {/* Display Mentors */}
+          <Box>
+            <Mentors
+              semester={selectedSemester[0]}
+              sequence={selectedProject}
+              year={selectedSemester.substring(1)}
+            />
+          </Box>
 
-      {/* Display Company and Customers */}
-      <Box>
-        <CompanyAndCustomers
-          semester={selectedSemester[0]}
-          sequence={selectedProject}
-          year={selectedSemester.substring(1)}
-        />
-      </Box>
+          {/* Display Company and Customers */}
+          <Box>
+            <CompanyAndCustomers
+              semester={selectedSemester[0]}
+              sequence={selectedProject}
+              year={selectedSemester.substring(1)}
+            />
+          </Box>
+        </Stack>
+      )}
     </Stack>
   );
 };
 
+function ProjectOverviewBar({ project, onMoreInfoClick }) {
+  // Check if they have a locker assigned, or if they have lab safety completed
+  const query = `
+    SELECT * FROM lockers 
+    WHERE semester = '${project.semester}' 
+    AND sequence = ${project.sequence} 
+    AND year = ${project.year};
+  `;
+
+  const query2 = `
+    SELECT * FROM students 
+    INNER JOIN teams ON students.email = teams.student_email 
+    WHERE teams.semester = '${project.semester}' 
+    AND teams.sequence = ${project.sequence} 
+    AND teams.year = ${project.year};
+  `;
+
+  const { data: lockerData, error, isLoading } = useSqlQuery(query);
+  const {
+    data: data2,
+    error: error2,
+    isLoading: isLoading2,
+  } = useSqlQuery(query2);
+
+  function handleMoreInfoClick() {
+    if (onMoreInfoClick) {
+      onMoreInfoClick(project);
+    }
+  }
+
+  if (isLoading || isLoading2) {
+    return <CircularProgress />;
+  }
+
+  if (error || error2) {
+    return <p>Error fetching data: {error?.message || error2?.message}</p>;
+  }
+
+  let allStudentsHaveLabSafety = true;
+  for (let student of data2.data.results) {
+    if (!student.lab_safety) {
+      allStudentsHaveLabSafety = false;
+      break;
+    }
+  }
+
+  return (
+    <Paper sx={{ p: 2 }} variant="outlined">
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Box>
+          <Typography variant="h6">
+            {`${project.semester} ${project.year}-${project.sequence}: ${project.short_title}`}
+          </Typography>
+          <Typography variant="body2">{project.description}</Typography>
+          <Button onClick={handleMoreInfoClick}>More Info</Button>
+        </Box>
+
+        <Box
+          sx={{ minWidth: "20vw", display: "flex", justifyContent: "flex-end" }}
+        >
+          {lockerData && lockerData.data.results.length > 0 ? (
+            <Tooltip
+              title={`Locker: ${lockerData.data.results[0].locker_number} Shelf: ${lockerData.data.results[0].shelf}`}
+            >
+              <Inventory2Icon
+                color="primary"
+                sx={{ fontSize: 40 }}
+                color="info"
+              />
+            </Tooltip>
+          ) : null}
+
+          {allStudentsHaveLabSafety ? (
+            <Tooltip title="All students have completed lab safety">
+              <CheckCircleIcon color="success" sx={{ fontSize: 40 }} />
+            </Tooltip>
+          ) : (
+            <Tooltip title="Not all students have completed lab safety">
+              <CancelIcon color="error" sx={{ fontSize: 40 }} />
+            </Tooltip>
+          )}
+        </Box>
+      </Box>
+    </Paper>
+  );
+}
+
 function Student({ student }) {
   // Given the student email, pull the name and other info from the database
+
   let query = `SELECT * FROM students WHERE email = '${student.student_email}';`;
 
   // Check if the student has finished their training
@@ -220,7 +364,15 @@ function Student({ student }) {
     <TableRow key={student.student_email}>
       <TableCell>{data.data.results[0].firstname}</TableCell>
       <TableCell>{data.data.results[0].lastname}</TableCell>
-      <TableCell>{student.student_email}</TableCell>
+      <TableCell>
+        <Button
+          variant="contained"
+          color="primary"
+          href={`mailto:${student.student_email}`}
+        >
+          {student.student_email}
+        </Button>
+      </TableCell>
       <TableCell>{data.data.results[0].first_major_code}</TableCell>
       <TableCell>{data.data.results[0].citizenship}</TableCell>
       <TableCell>
@@ -263,9 +415,14 @@ function Mentors({ semester, sequence, year }) {
   }
 
   return (
-    <TableRow key={data.data.results[0]?.email}>
-      <TableCell>{data.data.results[0]?.email}</TableCell>
-    </TableRow>
+    <Box>
+      <Typography variant="h6">Mentors:</Typography>
+      <TableRow>
+        {data.data.results.map((mentor, index) => (
+          <TableCell key={index}>{mentor.email}</TableCell>
+        ))}
+      </TableRow>
+    </Box>
   );
 }
 

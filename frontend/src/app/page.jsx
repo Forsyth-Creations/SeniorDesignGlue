@@ -38,7 +38,7 @@ import TeamQuickStats from "../components/Dashboards/TeamQuickStats";
 import StudentDashboard from "../components/Dashboards/StudentDashboard";
 
 // useSqlQuery
-import { useSqlQuery } from "../hooks/sqlHooks";
+import { useSqlQuery, runQuery, deleteQuery } from "../hooks/sqlHooks";
 
 const drawerWidth = 240;
 
@@ -53,8 +53,10 @@ const theme = createTheme({
   },
 });
 
-function SqlHistoryItem({ query, onCopy, onDelete }) {
-  const { data, isLoading, isError, refetch } = useSqlQuery(query);
+function SqlHistoryItem({ query, onCopy, onDelete, handleSelectRecentQuery }) {
+  const { data, isLoading, isError, refetch } = useSqlQuery(query, {
+    remember: true,
+  }); // Fetch the results for the query
   const [showResults, setShowResults] = useState(false); // State to control visibility of results
   const [page, setPage] = useState(0); // Current page state
   const [rowsPerPage, setRowsPerPage] = useState(10); // Rows per page
@@ -86,7 +88,10 @@ function SqlHistoryItem({ query, onCopy, onDelete }) {
       >
         <Button
           variant="text"
-          onClick={() => refetch()} // Fetch new results
+          onClick={() => {
+            refetch();
+            handleSelectRecentQuery(query);
+          }} // Fetch new results
           sx={{ textTransform: "none" }}
         >
           {query}
@@ -95,7 +100,9 @@ function SqlHistoryItem({ query, onCopy, onDelete }) {
           <Button
             variant="outlined"
             color="primary"
-            onClick={() => onCopy(query)}
+            onClick={() => {
+              onCopy(query);
+            }}
             sx={{ ml: 2 }}
           >
             Copy
@@ -122,19 +129,20 @@ function SqlHistoryItem({ query, onCopy, onDelete }) {
           {isError && (
             <Typography color="error">Error fetching results</Typography>
           )}
-          {data && data.length > 0 && (
+          {/* {JSON.stringify(data)} */}
+          {data?.data?.results && data?.data?.results.length > 0 && (
             <>
               <TableContainer>
                 <Table>
                   <TableHead>
                     <TableRow>
-                      {Object.keys(data[0]).map((key) => (
+                      {Object.keys(data.data.results[0]).map((key) => (
                         <TableCell key={key}>{key}</TableCell>
                       ))}
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {data
+                    {data.data.results
                       .slice(
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage,
@@ -152,7 +160,7 @@ function SqlHistoryItem({ query, onCopy, onDelete }) {
               <TablePagination
                 rowsPerPageOptions={[10, 25, 50]} // Options for rows per page
                 component="div"
-                count={data.length} // Total number of items
+                count={data.data.results.length} // Total number of items
                 rowsPerPage={rowsPerPage} // Current rows per page
                 page={page} // Current page
                 onPageChange={handleChangePage} // Function to handle page change
@@ -176,37 +184,43 @@ const App = () => {
   const [recentQueries, setRecentQueries] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
+  // pull the old queries from the common_queries table
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch: refetchCommon,
+  } = useSqlQuery(
+    "SELECT * FROM common_queries",
+    {},
+    { refetchOnWindowFocus: false },
+  );
+
+  React.useEffect(() => {
+    if (data) {
+      setRecentQueries(data.data.results.map((row) => row.query));
+    }
+  }, [data]);
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleDeleteQuery = (queryToDelete) => {
+  const handleDeleteQuery = async (queryToDelete) => {
     setRecentQueries((prevQueries) =>
       prevQueries.filter((query) => query !== queryToDelete),
     );
+
+    // also remove the query from the database
+    await deleteQuery(queryToDelete);
+    refetchCommon();
   };
 
-  const handleExecuteQuery = () => {
+  const handleExecuteQuery = async () => {
     if (sqlQuery.trim()) {
-      StudentDashboard;
-      console.log("Executing SQL Query:", sqlQuery);
-
-      setRecentQueries((prevQueries) => {
-        const existingIndex = prevQueries.indexOf(sqlQuery);
-        if (existingIndex !== -1) {
-          const updatedQueries = [...prevQueries];
-          updatedQueries.splice(existingIndex, 1);
-          updatedQueries.unshift(sqlQuery);
-          return updatedQueries.slice(0, 5);
-        } else {
-          const updatedQueries = [sqlQuery, ...prevQueries];
-          return updatedQueries.slice(0, 5);
-        }
-      });
-
-      // make an API call to execute the SQL query
-
+      await runQuery(sqlQuery, { remember: true });
       setSqlQuery("");
+      refetchCommon();
     } else {
       console.warn("SQL query is empty.");
     }
@@ -313,6 +327,7 @@ const App = () => {
                     query={query}
                     onCopy={handleCopyToClipboard}
                     onDelete={handleDeleteQuery}
+                    handleSelectRecentQuery={handleSelectRecentQuery}
                   />
                 </ListItem>
               ))}
