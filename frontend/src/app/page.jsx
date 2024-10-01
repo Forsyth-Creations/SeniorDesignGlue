@@ -25,13 +25,17 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  TablePagination
+  TablePagination,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import DownloadIcon from "@mui/icons-material/Download"; // Import the Download icon
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import DeleteIcon from "@mui/icons-material/Delete"; // Import the Delete icon
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore"; // Import the ExpandMore icon
+
+// Dashboards
+import GeneralDashboard from "../components/Dashboards/GeneralDashboard";
+import TeamQuickStats from "../components/Dashboards/TeamQuickStats";
+import StudentDashboard from "../components/Dashboards/StudentDashboard";
 
 // useSqlQuery
 import { useSqlQuery } from "../hooks/sqlHooks";
@@ -131,7 +135,10 @@ function SqlHistoryItem({ query, onCopy, onDelete }) {
                   </TableHead>
                   <TableBody>
                     {data
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) // Paginate the data
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage,
+                      ) // Paginate the data
                       .map((row, rowIndex) => (
                         <TableRow key={rowIndex}>
                           {Object.values(row).map((value, colIndex) => (
@@ -162,7 +169,6 @@ function SqlHistoryItem({ query, onCopy, onDelete }) {
   );
 }
 
-
 const App = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
@@ -181,7 +187,7 @@ const App = () => {
   };
 
   const handleExecuteQuery = () => {
-    if (sqlQuery.trim()) {
+    if (sqlQuery.trim()) {StudentDashboard
       console.log("Executing SQL Query:", sqlQuery);
 
       setRecentQueries((prevQueries) => {
@@ -239,13 +245,15 @@ const App = () => {
       <Divider />
       <List>
         {[
-          "Generate Advertisement PDF",
-          "Project Selection Survey",
-          "Project Team Assignments and Stats",
-          "SME Advertisements and Stats",
-          "Mentor Assignment",
-          "Canvas Group Files",
-          "Generate Expo book",
+          // "Generate Advertisement PDF",
+          // "Project Selection Survey",
+          // "Project Team Assignments and Stats",
+          // "SME Advertisements and Stats",
+          // "Mentor Assignment",
+          "Student Dashboard",
+          "Team Quick Stats",
+          // "Canvas Group Files",
+          // "Generate Expo book",
           "Custom SQL Query",
         ].map((text) => (
           <ListItem key={text} onClick={() => setSelectedOption(text)}>
@@ -260,34 +268,10 @@ const App = () => {
 
   const renderContent = () => {
     switch (selectedOption) {
-      case "Generate Advertisement PDF":
-        return (
-          <Typography variant="h6">
-            Generate Advertisement PDF Content
-          </Typography>
-        );
-      case "Project Selection Survey":
-        return (
-          <Typography variant="h6">Project Selection Survey Content</Typography>
-        );
-      case "Project Team Assignments and Stats":
-        return (
-          <Typography variant="h6">
-            Project Team Assignments and Stats Content
-          </Typography>
-        );
-      case "SME Advertisements and Stats":
-        return (
-          <Typography variant="h6">
-            SME Advertisements and Stats Content
-          </Typography>
-        );
-      case "Mentor Assignment":
-        return <Typography variant="h6">Mentor Assignment Content</Typography>;
-      case "Canvas Group Files":
-        return <Typography variant="h6">Canvas Group Files Content</Typography>;
-      case "Generate Expo book":
-        return <Typography variant="h6">Generate Expo book Content</Typography>;
+      case "Student Dashboard":
+        return <StudentDashboard />;
+      case "Team Quick Stats":
+        return <TeamQuickStats />;
       case "Custom SQL Query":
         return (
           <Box>
@@ -335,11 +319,7 @@ const App = () => {
           </Box>
         );
       default:
-        return (
-          <Typography variant="h6">
-            Please select an option from the sidebar
-          </Typography>
-        );
+        return <GeneralDashboard />;
     }
   };
 
