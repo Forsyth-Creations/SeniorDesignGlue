@@ -1,11 +1,6 @@
-out
-
-./frontend/node_modules
-
-.next
-
-./pg_data
-
-*/__pycache__/*
-
-/to_restore
+out/
+frontend/node_modules/
+.next/
+pg_data/
+**/__pycache__/
+to_restore/
