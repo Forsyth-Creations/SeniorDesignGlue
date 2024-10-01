@@ -35,7 +35,9 @@ const StudentSearch = ({ onStudentSelect }) => {
   }
 
   if (error) {
-    return <Alert severity="error">Error fetching students: {error.message}</Alert>;
+    return (
+      <Alert severity="error">Error fetching students: {error.message}</Alert>
+    );
   }
 
   return (
@@ -57,8 +59,16 @@ const StudentPage = ({ studentEmail }) => {
   const studentQuery = `SELECT * FROM students WHERE email = '${studentEmail}';`;
   const projectQuery = `SELECT * FROM teams WHERE student_email = '${studentEmail}';`;
 
-  const { data: studentData, error: studentError, isLoading: studentLoading } = useSqlQuery(studentQuery);
-  const { data: projectData, error: projectError, isLoading: projectLoading } = useSqlQuery(projectQuery);
+  const {
+    data: studentData,
+    error: studentError,
+    isLoading: studentLoading,
+  } = useSqlQuery(studentQuery);
+  const {
+    data: projectData,
+    error: projectError,
+    isLoading: projectLoading,
+  } = useSqlQuery(projectQuery);
 
   if (studentLoading || projectLoading) {
     return <CircularProgress />;
@@ -72,18 +82,24 @@ const StudentPage = ({ studentEmail }) => {
     <Box>
       <Typography variant="h5">Student Information</Typography>
       <Typography variant="body1">
-        Name: {studentData?.data.results[0]?.firstname} {studentData?.data.results[0]?.lastname}
+        Name: {studentData?.data.results[0]?.firstname}{" "}
+        {studentData?.data.results[0]?.lastname}
       </Typography>
       <Typography variant="body1">Email: {studentEmail}</Typography>
-      <Typography variant="body1">Major: {studentData?.data.results[0]?.first_major_code}</Typography>
+      <Typography variant="body1">
+        Major: {studentData?.data.results[0]?.first_major_code}
+      </Typography>
 
-      <Typography variant="h6" mt={2}>Project Information</Typography>
+      <Typography variant="h6" mt={2}>
+        Project Information
+      </Typography>
       {projectData?.data.results.length > 0 ? (
         <Stack spacing={2}>
           {projectData?.data.results.map((project, index) => (
             <Box key={index}>
               <Typography variant="body1">
-                Project: {project.semester}{project.year} - {project.sequence}
+                Project: {project.semester}
+                {project.year} - {project.sequence}
               </Typography>
             </Box>
           ))}
@@ -102,7 +118,9 @@ const StudentDashboard = () => {
 
   return (
     <Box p={4}>
-      <Typography variant="h4" mb={3}>Student Project Dashboard</Typography>
+      <Typography variant="h4" mb={3}>
+        Student Project Dashboard
+      </Typography>
       {/* Student Search */}
       <StudentSearch onStudentSelect={setSelectedStudent} />
 

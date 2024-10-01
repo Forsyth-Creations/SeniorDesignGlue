@@ -11,9 +11,12 @@ import {
   TableCell,
   Stack,
   Alert,
+  Tooltip,
 } from "@mui/material";
 import { useSqlQuery } from "../../hooks/sqlHooks";
-import { Description } from "@mui/icons-material";
+
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const TeamQuickStats = () => {
   // SQL query to fetch the unique semester-year combos
@@ -148,7 +151,14 @@ const TeamQuickStats = () => {
         year={selectedSemester.substring(1)}
       />
 
-      <ProjectDescription semester={selectedSemester[0]} sequence={selectedProject} year={selectedSemester.substring(1)} />
+      {/* If every student has lab safety completed, show that. Otherwise show a warning */}
+      <LabSafety semester={selectedSemester[0]} sequence={selectedProject} year={selectedSemester.substring(1)} />
+
+      <ProjectDescription
+        semester={selectedSemester[0]}
+        sequence={selectedProject}
+        year={selectedSemester.substring(1)}
+      />
 
       <Box>
         {isLoading2 ? (
@@ -187,7 +197,6 @@ const TeamQuickStats = () => {
           year={selectedSemester.substring(1)}
         />
       </Box>
-
     </Stack>
   );
 };
@@ -215,6 +224,17 @@ function Student({ student }) {
       <TableCell>{student.student_email}</TableCell>
       <TableCell>{data.data.results[0].first_major_code}</TableCell>
       <TableCell>{data.data.results[0].citizenship}</TableCell>
+      <TableCell>
+        {data.data.results[0].lab_safety ? (
+          <Tooltip title="Lab Safety Completed">
+            <CheckCircleIcon color="success" />
+          </Tooltip>
+        ) : (
+          <Tooltip title="Lab Safety Not Completed">
+            <CancelIcon color="error" />
+          </Tooltip>
+        )}
+      </TableCell>
     </TableRow>
   );
 }
@@ -267,15 +287,15 @@ function LockerAssignment({ semester, sequence, year }) {
   if (data.data.results.length !== 0) {
     return (
       <Alert severity="info">
-        Locker Assignment: {data.data.results[0]?.locker_number}, shelf: {data.data.results[0]?.shelf}
+        Locker Assignment: {data.data.results[0]?.locker_number}, shelf:{" "}
+        {data.data.results[0]?.shelf}
       </Alert>
     );
   }
   return null;
 }
 
-function CompanyAndCustomers({semester, sequence, year}) {
-
+function CompanyAndCustomers({ semester, sequence, year }) {
   if (semester === "" || sequence === "" || year === "") {
     return null;
   }
@@ -285,7 +305,11 @@ function CompanyAndCustomers({semester, sequence, year}) {
   let query2 = `SELECT * FROM project_customers WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
 
   const { data, error, isLoading } = useSqlQuery(query);
-  const { data: data2, error: error2, isLoading: isLoading2 } = useSqlQuery(query2);
+  const {
+    data: data2,
+    error: error2,
+    isLoading: isLoading2,
+  } = useSqlQuery(query2);
 
   if (isLoading || isLoading2) {
     return <CircularProgress />;
@@ -306,7 +330,9 @@ function CompanyAndCustomers({semester, sequence, year}) {
       <Typography variant="h6">Customers:</Typography>
       {data2.data.results.length > 0 ? (
         data2.data.results.map((customer, index) => (
-          <Typography key={index} variant="body1">{customer.email}</Typography>
+          <Typography key={index} variant="body1">
+            {customer.email}
+          </Typography>
         ))
       ) : (
         <Typography variant="body1">No customers assigned</Typography>
@@ -315,9 +341,7 @@ function CompanyAndCustomers({semester, sequence, year}) {
   );
 }
 
-
-function ProjectDescription({semester, sequence, year}) {
-
+function ProjectDescription({ semester, sequence, year }) {
   if (semester === "" || sequence === "" || year === "") {
     return null;
   }
@@ -338,11 +362,44 @@ function ProjectDescription({semester, sequence, year}) {
   return (
     <Box>
       <Typography variant="h6">Description:</Typography>
-      <Typography variant="body1">{data.data.results[0]?.description}</Typography>
+      <Typography variant="body1">
+        {data.data.results[0]?.description}
+      </Typography>
     </Box>
   );
 }
 
+function LabSafety({ semester, sequence, year }) {
+  if (semester === "" || sequence === "" || year === "") {
+    return null;
+  }
 
+  // Given the SME email, pull the name and other info from the database
+  let query = `SELECT * FROM students INNER JOIN teams ON students.email = teams.student_email WHERE teams.semester = '${semester}' AND teams.sequence = ${sequence} AND teams.year = ${year};`;
+
+  const { data, error, isLoading } = useSqlQuery(query);
+
+  if (isLoading) {
+    return <CircularProgress />;
+  }
+
+  if (error) {
+    return <p>Error fetching data: {error.message}</p>;
+  }
+
+  let allStudentsHaveLabSafety = true;
+  for (let student of data.data.results) {
+    if (!student.lab_safety) {
+      allStudentsHaveLabSafety = false;
+      break;
+    }
+  }
+
+  return allStudentsHaveLabSafety ? (
+    <Alert severity="success">All students have completed lab safety</Alert>
+  ) : (
+    <Alert severity="warning">Not all students have completed lab safety</Alert>
+  );
+}
 
 export default TeamQuickStats;

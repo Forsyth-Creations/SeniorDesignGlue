@@ -187,7 +187,8 @@ const App = () => {
   };
 
   const handleExecuteQuery = () => {
-    if (sqlQuery.trim()) {StudentDashboard
+    if (sqlQuery.trim()) {
+      StudentDashboard;
       console.log("Executing SQL Query:", sqlQuery);
 
       setRecentQueries((prevQueries) => {
