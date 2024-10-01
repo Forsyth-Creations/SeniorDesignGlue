@@ -5,3 +5,7 @@ out
 .next
 
 ./pg_data
+
+*/__pycache__/*
+
+/to_restore
