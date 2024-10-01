@@ -181,7 +181,6 @@ const TeamQuickStats = () => {
 
       {/* Display Mentors */}
       <Box>
-        <Typography variant="h6">Mentors:</Typography>
         <Mentors
           semester={selectedSemester[0]}
           sequence={selectedProject}
@@ -242,6 +241,11 @@ function Student({ student }) {
 // Project SMEs
 function Mentors({ semester, sequence, year }) {
   // Given the SME email, pull the name and other info from the database
+
+  if (semester === "" || sequence === "" || year === "") {
+    return null;
+  }
+
   let query = `SELECT * FROM project_mentors WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
 
   const { data, error, isLoading } = useSqlQuery(query);
