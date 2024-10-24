@@ -320,10 +320,7 @@ function ProjectOverviewBar({ project, onMoreInfoClick }) {
             <Tooltip
               title={`Locker: ${lockerData.data.results[0].locker_number} Shelf: ${lockerData.data.results[0].shelf}`}
             >
-              <Inventory2Icon
-                sx={{ fontSize: 40 }}
-                color="info"
-              />
+              <Inventory2Icon sx={{ fontSize: 40 }} color="info" />
             </Tooltip>
           ) : null}
 
@@ -400,7 +397,6 @@ function Mentors({ semester, sequence, year }) {
 
   let query = `SELECT * FROM project_mentors WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
 
-
   if (isLoading) {
     return <CircularProgress />;
   }
@@ -432,7 +428,6 @@ function LockerAssignment({ semester, sequence, year }) {
     return null;
   }
   let query = `SELECT * FROM lockers WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
-
 
   if (isLoading) {
     return <CircularProgress />;
@@ -469,7 +464,6 @@ function CompanyAndCustomers({ semester, sequence, year }) {
   // Given the SME email, pull the name and other info from the database
   let query = `SELECT * FROM project_sponsors WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
   let query2 = `SELECT * FROM project_customers WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
-
 
   if (isLoading || isLoading2) {
     return <CircularProgress />;
@@ -510,7 +504,6 @@ function ProjectDescription({ semester, sequence, year }) {
   // Given the SME email, pull the name and other info from the database
   let query = `SELECT * FROM projects WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
 
-
   if (isLoading) {
     return <CircularProgress />;
   }
@@ -537,7 +530,6 @@ function LabSafety({ semester, sequence, year }) {
 
   // Given the SME email, pull the name and other info from the database
   let query = `SELECT * FROM students INNER JOIN teams ON students.email = teams.student_email WHERE teams.semester = '${semester}' AND teams.sequence = ${sequence} AND teams.year = ${year};`;
-
 
   if (isLoading) {
     return <CircularProgress />;
