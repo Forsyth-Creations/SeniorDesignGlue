@@ -17,7 +17,9 @@ services:
     ports:
       - "8080:8080"    
   frontend:
-    build: ./frontend
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
     volumes:
@@ -28,7 +30,7 @@ services:
   backend:
     build:     
       context: ./backend
-    # command: uvicorn app.server:app --host 0.0.0.0 --port 5000 --reload
+      dockerfile: Dockerfile.dev
     volumes:
       - ./backend/app:/backend/app
     environment:
@@ -37,3 +39,21 @@ services:
       - HOST=0.0.0.0
     ports:
       - "5000:5000"
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - NGINX_PORT=80
+    volumes:
+      - ./nginx/config:/etc/nginx/conf.d
+    depends_on:
+      - frontend
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 600 # 10 minutes
+    restart: unless-stopped
