@@ -46,9 +46,10 @@ app.add_middleware(
 app.include_router(
     sql.router,
     tags=["sql"],
+    prefix="/api",
 )
 
 
-@app.get("/")
+@app.get("/api")
 def api():
     return "Congrats! You have reached the API! Have a cookie"
