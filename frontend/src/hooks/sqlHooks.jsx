@@ -33,8 +33,6 @@ export const runQuery = async (query, options = {}) => {
 // ----------- Delete query from common_queries ------------------
 
 export const deleteQuery = async (query) => {
-  let API_ENDPOINT = process.env.NEXT_PUBLIC_API_URL;
-
   if (query === "" || query === undefined) {
     return;
   }
