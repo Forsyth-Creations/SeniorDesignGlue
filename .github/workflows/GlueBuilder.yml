@@ -2,10 +2,10 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
     tags: [ "v*" ]  # This triggers on version tags like v1.0.0
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
   backend:
@@ -40,7 +40,7 @@ jobs:
           docker buildx build -f ./backend/Dockerfile.prod -t forsythcreations/mde:backend-${VERSION} ./backend --platform linux/amd64 --platform linux/arm64 --push
 
       - name: Tag Docker image as latest
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         run: |
           docker buildx build -f ./backend/Dockerfile.prod -t forsythcreations/mde:backend-latest ./backend --platform linux/amd64 --platform linux/arm64 --push
 
@@ -77,10 +77,10 @@ jobs:
           export TAG_NAME=${VERSION}
           docker buildx build --build-arg NEXT_PUBLIC_VERSION=${TAG_NAME} -f ./frontend/Dockerfile.prod -t forsythcreations/mde:frontend-${TAG_NAME} ./frontend --platform linux/amd64 --platform linux/arm64 --push
 
-      # If running on master, tag as latest
+      # If running on main, tag as latest
       - name: Tag Docker image as latest
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         run: |
-          EPOCH_TIME=master-$(date +%s)
+          EPOCH_TIME=main-$(date +%s)
           export NEXT_PUBLIC_VERSION=${EPOCH_TIME}
           docker buildx build --build-arg NEXT_PUBLIC_VERSION=${NEXT_PUBLIC_VERSION} -f ./frontend/Dockerfile.prod -t forsythcreations/mde:frontend-latest ./frontend --platform linux/amd64 --platform linux/arm64 --push
