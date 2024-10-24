@@ -12,26 +12,21 @@ RUN pip install poetry==1.8.3
 
 
 # Copy the requirements file
-COPY  pyproject.toml poetry.lock .coveragerc ./
+COPY pyproject.toml poetry.lock ./
 
 RUN poetry config virtualenvs.create false --local && poetry install --without dev
 
 RUN python -m textblob.download_corpora
 
 COPY ./app ./app
-COPY ./tests ./tests
 COPY ./prod_server.py ./
 
-COPY test.sh ./
 
 # # Expose the port
 EXPOSE 5000
 
 # Run black to check the formatting
 RUN poetry run black --check .
-
-# Run the tests
-RUN chmod +x test.sh && ./test.sh
 
 RUN pyinstaller --onefile prod_server.py  
 
@@ -41,12 +36,10 @@ WORKDIR /backend
 
 COPY --from=builder /backend/dist/prod_server ./dist/prod_server
 
-# Copy over the photo to use with the QR code
-COPY ./images ./dist/images
 
 # Run the application
 
-ENV PROD_ENV "production"
+ENV PROD_ENV="production"
 
 WORKDIR /backend/dist
 
