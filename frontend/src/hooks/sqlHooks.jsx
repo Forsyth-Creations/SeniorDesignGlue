@@ -4,6 +4,7 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { API_ENDPOINT } from "../constants";
 
 // ----------- Attempting to use the useQuery hook instead ------------------
 export const useSqlQuery = (query, options, queryParams) => {
@@ -16,8 +17,6 @@ export const useSqlQuery = (query, options, queryParams) => {
 };
 
 export const runQuery = async (query, options = {}) => {
-  let API_ENDPOINT = process.env.NEXT_PUBLIC_API_URL;
-
   if (query === "" || query === undefined) {
     return;
   }
