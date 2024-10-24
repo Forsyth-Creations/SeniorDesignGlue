@@ -33,7 +33,7 @@ WORKDIR /frontend
 RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
 
 COPY --from=builder /frontend/.next /frontend/.next
-COPY --from=builder /frontend/public /frontend/public
+# COPY --from=builder /frontend/public /frontend/public
 COPY --from=builder /frontend/package.json /frontend/package.json
 COPY --from=builder /frontend/package-lock.json /frontend/package-lock.json
 

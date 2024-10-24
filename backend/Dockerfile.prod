@@ -14,9 +14,7 @@ RUN pip install poetry==1.8.3
 # Copy the requirements file
 COPY pyproject.toml poetry.lock ./
 
-RUN poetry config virtualenvs.create false --local && poetry install --without dev
-
-RUN python -m textblob.download_corpora
+RUN poetry config virtualenvs.create false --local && poetry install
 
 COPY ./app ./app
 COPY ./prod_server.py ./

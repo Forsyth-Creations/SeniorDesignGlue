@@ -321,7 +321,6 @@ function ProjectOverviewBar({ project, onMoreInfoClick }) {
               title={`Locker: ${lockerData.data.results[0].locker_number} Shelf: ${lockerData.data.results[0].shelf}`}
             >
               <Inventory2Icon
-                color="primary"
                 sx={{ fontSize: 40 }}
                 color="info"
               />
@@ -393,6 +392,7 @@ function Student({ student }) {
 // Project SMEs
 function Mentors({ semester, sequence, year }) {
   // Given the SME email, pull the name and other info from the database
+  const { data, error, isLoading } = useSqlQuery(query);
 
   if (semester === "" || sequence === "" || year === "") {
     return null;
@@ -400,7 +400,6 @@ function Mentors({ semester, sequence, year }) {
 
   let query = `SELECT * FROM project_mentors WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
 
-  const { data, error, isLoading } = useSqlQuery(query);
 
   if (isLoading) {
     return <CircularProgress />;
@@ -428,12 +427,12 @@ function Mentors({ semester, sequence, year }) {
 
 function LockerAssignment({ semester, sequence, year }) {
   // Given the SME email, pull the name and other info from the database
+  const { data, error, isLoading } = useSqlQuery(query);
   if (semester === "" || sequence === "" || year === "") {
     return null;
   }
   let query = `SELECT * FROM lockers WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
 
-  const { data, error, isLoading } = useSqlQuery(query);
 
   if (isLoading) {
     return <CircularProgress />;
@@ -457,6 +456,12 @@ function LockerAssignment({ semester, sequence, year }) {
 }
 
 function CompanyAndCustomers({ semester, sequence, year }) {
+  const { data, error, isLoading } = useSqlQuery(query);
+  const {
+    data: data2,
+    error: error2,
+    isLoading: isLoading2,
+  } = useSqlQuery(query2);
   if (semester === "" || sequence === "" || year === "") {
     return null;
   }
@@ -465,12 +470,6 @@ function CompanyAndCustomers({ semester, sequence, year }) {
   let query = `SELECT * FROM project_sponsors WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
   let query2 = `SELECT * FROM project_customers WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
 
-  const { data, error, isLoading } = useSqlQuery(query);
-  const {
-    data: data2,
-    error: error2,
-    isLoading: isLoading2,
-  } = useSqlQuery(query2);
 
   if (isLoading || isLoading2) {
     return <CircularProgress />;
@@ -503,6 +502,7 @@ function CompanyAndCustomers({ semester, sequence, year }) {
 }
 
 function ProjectDescription({ semester, sequence, year }) {
+  const { data, error, isLoading } = useSqlQuery(query);
   if (semester === "" || sequence === "" || year === "") {
     return null;
   }
@@ -510,7 +510,6 @@ function ProjectDescription({ semester, sequence, year }) {
   // Given the SME email, pull the name and other info from the database
   let query = `SELECT * FROM projects WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
 
-  const { data, error, isLoading } = useSqlQuery(query);
 
   if (isLoading) {
     return <CircularProgress />;
@@ -531,6 +530,7 @@ function ProjectDescription({ semester, sequence, year }) {
 }
 
 function LabSafety({ semester, sequence, year }) {
+  const { data, error, isLoading } = useSqlQuery(query);
   if (semester === "" || sequence === "" || year === "") {
     return null;
   }
@@ -538,7 +538,6 @@ function LabSafety({ semester, sequence, year }) {
   // Given the SME email, pull the name and other info from the database
   let query = `SELECT * FROM students INNER JOIN teams ON students.email = teams.student_email WHERE teams.semester = '${semester}' AND teams.sequence = ${sequence} AND teams.year = ${year};`;
 
-  const { data, error, isLoading } = useSqlQuery(query);
 
   if (isLoading) {
     return <CircularProgress />;

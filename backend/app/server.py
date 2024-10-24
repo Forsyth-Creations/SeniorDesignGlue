@@ -48,6 +48,7 @@ app.include_router(
     tags=["sql"],
 )
 
+
 @app.get("/")
 def api():
     return "Congrats! You have reached the API! Have a cookie"
