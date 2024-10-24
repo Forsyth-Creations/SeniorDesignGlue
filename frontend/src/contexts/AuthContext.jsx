@@ -180,7 +180,7 @@ const AuthProvider = ({ children }) => {
     // Delete the cookie
     deleteCookie("token");
     setTokenMain(null);
-    router.push("/");
+    router.push("/login");
   };
 
   const clearToken = () => {

@@ -31,7 +31,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import DownloadIcon from "@mui/icons-material/Download"; // Import the Download icon
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import DeleteIcon from "@mui/icons-material/Delete"; // Import the Delete icon
-
+import LogoutIcon from "@mui/icons-material/Logout";
 import { ProtectedByAuth } from "../contexts/AuthContext";
 
 // Dashboards
@@ -41,6 +41,9 @@ import StudentDashboard from "../components/Dashboards/StudentDashboard";
 
 // useSqlQuery
 import { useSqlQuery, runQuery, deleteQuery } from "../hooks/sqlHooks";
+
+// import the auth context
+import { AuthContext } from "../contexts/AuthContext";
 
 const drawerWidth = 240;
 
@@ -185,6 +188,12 @@ function App() {
   const [sqlQuery, setSqlQuery] = useState("");
   const [recentQueries, setRecentQueries] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const auth = React.useContext(AuthContext);
+
+  function handleLogout() {
+    auth.logout();
+  }
 
   // pull the old queries from the common_queries table
   const {
@@ -369,6 +378,13 @@ function App() {
           }}
         >
           {drawer}
+          <Box sx={{ ml: "10px" }}>
+            <Tooltip title="Logout">
+              <IconButton color="primary" onClick={handleLogout}>
+                <LogoutIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Drawer>
         <Box
           component="main"
