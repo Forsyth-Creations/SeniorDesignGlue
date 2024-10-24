@@ -61,3 +61,10 @@ To exec into a container with a terminal session (example provided). **This only
 docker compose exec -it postgres bash
 ```
 
+**To restore a postgres backup, you can do the following:**
+
+```
+cd to_restore
+psql -U root -d postgres < MDE_HF.backup
+```
+

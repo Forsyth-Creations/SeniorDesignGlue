@@ -389,13 +389,12 @@ function Student({ student }) {
 // Project SMEs
 function Mentors({ semester, sequence, year }) {
   // Given the SME email, pull the name and other info from the database
+  let query = `SELECT * FROM project_mentors WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
   const { data, error, isLoading } = useSqlQuery(query);
 
   if (semester === "" || sequence === "" || year === "") {
     return null;
   }
-
-  let query = `SELECT * FROM project_mentors WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
 
   if (isLoading) {
     return <CircularProgress />;
@@ -423,11 +422,12 @@ function Mentors({ semester, sequence, year }) {
 
 function LockerAssignment({ semester, sequence, year }) {
   // Given the SME email, pull the name and other info from the database
+  let query = `SELECT * FROM lockers WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
   const { data, error, isLoading } = useSqlQuery(query);
+
   if (semester === "" || sequence === "" || year === "") {
     return null;
   }
-  let query = `SELECT * FROM lockers WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
 
   if (isLoading) {
     return <CircularProgress />;
@@ -451,6 +451,9 @@ function LockerAssignment({ semester, sequence, year }) {
 }
 
 function CompanyAndCustomers({ semester, sequence, year }) {
+  // Given the SME email, pull the name and other info from the database
+  let query = `SELECT * FROM project_sponsors WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
+  let query2 = `SELECT * FROM project_customers WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
   const { data, error, isLoading } = useSqlQuery(query);
   const {
     data: data2,
@@ -460,10 +463,6 @@ function CompanyAndCustomers({ semester, sequence, year }) {
   if (semester === "" || sequence === "" || year === "") {
     return null;
   }
-
-  // Given the SME email, pull the name and other info from the database
-  let query = `SELECT * FROM project_sponsors WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
-  let query2 = `SELECT * FROM project_customers WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
 
   if (isLoading || isLoading2) {
     return <CircularProgress />;
@@ -496,13 +495,13 @@ function CompanyAndCustomers({ semester, sequence, year }) {
 }
 
 function ProjectDescription({ semester, sequence, year }) {
+  let query = `SELECT * FROM projects WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
   const { data, error, isLoading } = useSqlQuery(query);
   if (semester === "" || sequence === "" || year === "") {
     return null;
   }
 
   // Given the SME email, pull the name and other info from the database
-  let query = `SELECT * FROM projects WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
 
   if (isLoading) {
     return <CircularProgress />;
@@ -523,13 +522,13 @@ function ProjectDescription({ semester, sequence, year }) {
 }
 
 function LabSafety({ semester, sequence, year }) {
+  let query = `SELECT * FROM students INNER JOIN teams ON students.email = teams.student_email WHERE teams.semester = '${semester}' AND teams.sequence = ${sequence} AND teams.year = ${year};`;
   const { data, error, isLoading } = useSqlQuery(query);
   if (semester === "" || sequence === "" || year === "") {
     return null;
   }
 
   // Given the SME email, pull the name and other info from the database
-  let query = `SELECT * FROM students INNER JOIN teams ON students.email = teams.student_email WHERE teams.semester = '${semester}' AND teams.sequence = ${sequence} AND teams.year = ${year};`;
 
   if (isLoading) {
     return <CircularProgress />;

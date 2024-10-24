@@ -8,9 +8,7 @@ import uvicorn
 from typing import Annotated
 
 # import the locations router
-from app.routers import (
-    sql,
-)
+from app.routers import sql, auth
 
 app = FastAPI(
     title="Senior Design Glue",
@@ -46,6 +44,12 @@ app.add_middleware(
 app.include_router(
     sql.router,
     tags=["sql"],
+    prefix="/api",
+)
+
+app.include_router(
+    auth.router,
+    tags=["auth"],
     prefix="/api",
 )
 

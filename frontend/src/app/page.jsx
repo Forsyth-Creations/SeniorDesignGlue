@@ -32,6 +32,8 @@ import DownloadIcon from "@mui/icons-material/Download"; // Import the Download 
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import DeleteIcon from "@mui/icons-material/Delete"; // Import the Delete icon
 
+import { ProtectedByAuth } from "../contexts/AuthContext";
+
 // Dashboards
 import GeneralDashboard from "../components/Dashboards/GeneralDashboard";
 import TeamQuickStats from "../components/Dashboards/TeamQuickStats";
@@ -177,7 +179,7 @@ function SqlHistoryItem({ query, onCopy, onDelete, handleSelectRecentQuery }) {
   );
 }
 
-const App = () => {
+function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [sqlQuery, setSqlQuery] = useState("");
@@ -388,6 +390,6 @@ const App = () => {
       </Box>
     </ThemeProvider>
   );
-};
+}
 
-export default App;
+export default ProtectedByAuth(App);
