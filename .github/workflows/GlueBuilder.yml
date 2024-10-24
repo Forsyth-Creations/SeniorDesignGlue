@@ -1,0 +1,86 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "master" ]
+    tags: [ "v*" ]  # This triggers on version tags like v1.0.0
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to DockerHub
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        run: |
+          docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
+    
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image for backend
+        if: github.event_name == 'pull_request'
+        run: |
+          docker buildx build -f ./backend/Dockerfile.prod -t forsythcreations/mde:backend ./backend --platform linux/amd64 --platform linux/arm64
+
+      - name: Push Docker image for backend
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSION=$(echo "${GITHUB_REF}" | sed 's/refs\/tags\///')
+          docker buildx build -f ./backend/Dockerfile.prod -t forsythcreations/mde:backend-${VERSION} ./backend --platform linux/amd64 --platform linux/arm64 --push
+
+      - name: Tag Docker image as latest
+        if: github.ref == 'refs/heads/master'
+        run: |
+          docker buildx build -f ./backend/Dockerfile.prod -t forsythcreations/mde:backend-latest ./backend --platform linux/amd64 --platform linux/arm64 --push
+
+  frontend:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to DockerHub
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        run: |
+          docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
+    
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image for frontend and save it
+        if: github.event_name == 'pull_request'
+        run: |
+          export BRANCH_NAME="${{ github.head_ref }}"
+          docker buildx build --build-arg NEXT_PUBLIC_VERSION=${BRANCH_NAME} -f ./frontend/Dockerfile.prod -t forsythcreations/mde:frontend ./frontend --platform linux/amd64 --platform linux/arm64
+    
+      - name: Push Docker image for frontend
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSION=$(echo "${GITHUB_REF}" | sed 's/refs\/tags\///')
+          export TAG_NAME=${VERSION}
+          docker buildx build --build-arg NEXT_PUBLIC_VERSION=${TAG_NAME} -f ./frontend/Dockerfile.prod -t forsythcreations/mde:frontend-${TAG_NAME} ./frontend --platform linux/amd64 --platform linux/arm64 --push
+
+      # If running on master, tag as latest
+      - name: Tag Docker image as latest
+        if: github.ref == 'refs/heads/master'
+        run: |
+          EPOCH_TIME=master-$(date +%s)
+          export NEXT_PUBLIC_VERSION=${EPOCH_TIME}
+          docker buildx build --build-arg NEXT_PUBLIC_VERSION=${NEXT_PUBLIC_VERSION} -f ./frontend/Dockerfile.prod -t forsythcreations/mde:frontend-latest ./frontend --platform linux/amd64 --platform linux/arm64 --push
