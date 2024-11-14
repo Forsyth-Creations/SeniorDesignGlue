@@ -11,8 +11,10 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "secret")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+
 def get_secret_key():
     return SECRET_KEY
+
 
 def verify_token(
     token: str = Depends(oauth2_scheme), secret_key: str = Depends(get_secret_key)

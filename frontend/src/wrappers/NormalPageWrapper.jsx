@@ -1,6 +1,7 @@
 import Navigation from "@/components/Toolbars/Navbar";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import { Box } from "@mui/material";
 
 export const theme = createTheme({
   palette: {
@@ -22,6 +23,7 @@ export default function NormalPageWrapper({ children }) {
         <CssBaseline />
         <Navigation />
         {children}
+        <Box sx={{ height: "100px" }} />
       </ThemeProvider>
     </>
   );

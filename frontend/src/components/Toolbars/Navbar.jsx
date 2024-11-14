@@ -11,9 +11,66 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Tooltip from "@mui/material/Tooltip";
 import Snackbar from "@mui/material/Snackbar";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { Button, Divider, List, ListItem } from "@mui/material";
+import { Button, Divider, List, ListItem, Stack, Chip } from "@mui/material";
 import { theme } from "@/wrappers/NormalPageWrapper";
 import { AuthContext } from "@/contexts/AuthContext";
+
+function WhichCohort() {
+  // Check if we are in the spring semester or call semester
+  // Also get the year
+
+  const today = new Date();
+  const month = today.getMonth();
+  let year = today.getFullYear();
+
+  // Remove the first two digits of the year
+  year = year.toString().slice(2);
+
+  if (month >= 0 && month <= 6) {
+    return `S${year}`;
+  }
+  return `F${year}`;
+}
+
+function NextUp() {
+  const today = new Date();
+  const month = today.getMonth();
+  let year = today.getFullYear();
+
+  // Remove the first two digits of the year
+
+  let month_car = "";
+  if (month >= 0 && month <= 6) {
+    month_car = "S";
+  } else {
+    month_car = "F";
+  }
+
+  let yearString = year.toString().slice(2);
+
+  if (month_car === "S") {
+    return `F${yearString}`;
+  }
+  let yearStringNext = (year + 1).toString().slice(2);
+  return `S${yearStringNext}`;
+}
+
+function WhichClass() {
+  const today = new Date();
+  const month = today.getMonth();
+  let year = today.getFullYear();
+
+  return (
+    <Stack>
+      <Typography variant="caption" noWrap>
+        {`Current: ${WhichCohort()}`}
+      </Typography>
+      <Typography variant="caption" noWrap>
+        {`Next Up: ${NextUp()}`}
+      </Typography>
+    </Stack>
+  );
+}
 
 export default function Navigation() {
   const auth = React.useContext(AuthContext);
@@ -33,6 +90,12 @@ export default function Navigation() {
     auth.logout();
   }
 
+  const PagesThatNeedAuth = [
+    "Student Dashboard",
+    "Team Quick Stats",
+    "Custom SQL Query",
+  ];
+
   const drawer = (
     <div>
       <Toolbar />
@@ -41,7 +104,7 @@ export default function Navigation() {
         {[
           // "Generate Advertisement PDF",
           // "Project Selection Survey",
-          // "Project Team Assignments and Stats",
+          { Cohorts: "/cohorts" },
           // "SME Advertisements and Stats",
           // "Mentor Assignment",
           { "Student Dashboard": "/students" },
@@ -49,24 +112,40 @@ export default function Navigation() {
           // "Canvas Group Files",
           // "Generate Expo book",
           { "Custom SQL Query": "/sql" },
-        ].map((text, index) => (
-          <ListItem
-            button
-            key={Object.keys(text)[0]}
-            component={Button}
-            href={Object.values(text)[0]}
-          >
-            {Object.keys(text)[0]}
-          </ListItem>
-        ))}
+        ].map((text, index) => {
+          let isAuthed = PagesThatNeedAuth.includes(Object.keys(text)[0]);
+          if (isAuthed && !auth.loggedIn) {
+            return null;
+          }
+          return (
+            <ListItem
+              button
+              key={Object.keys(text)[0]}
+              component={Button}
+              href={Object.values(text)[0]}
+            >
+              {Object.keys(text)[0]}
+              {isAuthed && "*"}
+            </ListItem>
+          );
+        })}
       </List>
     </div>
   );
 
   return (
     <Box sx={{ display: "flex" }}>
-      <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
-        <Toolbar>
+      <AppBar
+        position="fixed"
+        sx={{ zIndex: theme.zIndex.drawer + 1 }}
+        elevation={0}
+      >
+        <Toolbar
+          component={Stack}
+          direction="row"
+          justifyContent={"space-between"}
+          sx={{ width: "100%" }}
+        >
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -76,8 +155,16 @@ export default function Navigation() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-            Senior Design Glue
+            MDE Experience
           </Typography>
+          <Tooltip title={WhichClass()}>
+            <Chip
+              component={Button}
+              label={`Current: ${WhichCohort()}`}
+              color="secondary"
+              href={`/cohorts/${WhichCohort()}`}
+            />
+          </Tooltip>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -89,19 +176,36 @@ export default function Navigation() {
         }}
       >
         {drawer}
-        <Box sx={{ ml: "10px" }}>
-          <Tooltip title="Logout">
-            <IconButton color="primary" onClick={handleLogout}>
-              <LogoutIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
+        {auth.loggedIn && (
+          <Box sx={{ ml: "10px" }}>
+            <Tooltip title="Logout">
+              <IconButton color="primary" onClick={handleLogout}>
+                <LogoutIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
+        {/* Login button */}
+        {!auth.loggedIn && (
+          <Box sx={{ m: "10px" }}>
+            <Tooltip title="Login">
+              <Button
+                color="primary"
+                href="/login"
+                variant="contained"
+                sx={{ m: "10px" }}
+              >
+                Login
+              </Button>
+            </Tooltip>
+          </Box>
+        )}
       </Drawer>
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: 1,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
         }}
       >

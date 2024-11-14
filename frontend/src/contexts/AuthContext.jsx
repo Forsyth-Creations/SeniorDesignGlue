@@ -11,6 +11,7 @@ import { useParams } from "next/navigation";
 import { setCookie, getCookie, deleteCookie } from "cookies-next";
 import { toast } from "react-toastify";
 import jwt from "jsonwebtoken";
+import { Alert, Box } from "@mui/material";
 
 const AuthContext = createContext();
 
@@ -314,4 +315,30 @@ function ProtectedByAuth(Component) {
   };
 }
 
-export { AuthContext, AuthProvider, ProtectedByAuth };
+function NotProtectedByAuth(Component) {
+  return function AuthHOC(props) {
+    // This should wrap the page, and show admins at
+    // the bottom that this is an unprotected page
+    // You will know they are admins because they will
+    // be logged in
+
+    const { loggedIn } = useContext(AuthContext);
+
+    return (
+      <>
+        <Component {...props} />
+        {loggedIn && (
+          <Alert
+            severity="info"
+            sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }}
+          >
+            This page is not protected by authentication. Only admins can see
+            this message.
+          </Alert>
+        )}
+      </>
+    );
+  };
+}
+
+export { AuthContext, AuthProvider, ProtectedByAuth, NotProtectedByAuth };

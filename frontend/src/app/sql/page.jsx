@@ -5,7 +5,8 @@ import React from "react";
 import StudentDashboard from "@/components/Dashboards/StudentDashboard";
 import NormalPageWrapper from "@/wrappers/NormalPageWrapper";
 import { ProtectedByAuth } from "@/contexts/AuthContext";
-import { useSqlQuery, runQuery, deleteQuery } from "@/hooks/sqlHooks";
+import { useSqlQuery } from "@/hooks/sqlHooks";
+import { useMDEMutation } from "@/hooks/Generics";
 import {
   Box,
   Button,
@@ -31,7 +32,32 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import DownloadIcon from "@mui/icons-material/Download";
 
-function SqlHistoryItem({ query, onCopy, onDelete, handleSelectRecentQuery }) {
+function SqlHistoryItem({
+  query,
+  handleSelectRecentQuery,
+  setRecentQueries,
+  refetchCommon,
+}) {
+  const deleteMutation = useMDEMutation(`sql/${query}`, { function: "DELETE" });
+
+  const onDelete = async (queryToDelete) => {
+    setRecentQueries((prevQueries) =>
+      prevQueries.filter((query) => query !== queryToDelete),
+    );
+
+    // also remove the query from the database
+    await deleteMutation.mutate({ query: queryToDelete });
+  };
+
+  const onCopy = async (query) => {
+    try {
+      await navigator.clipboard.writeText(query);
+      setSnackbarOpen(true);
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
+  };
+
   const { data, isLoading, isError, refetch } = useSqlQuery(query, {
     remember: true,
   }); // Fetch the results for the query
@@ -161,6 +187,9 @@ const Page = () => {
   const [recentQueries, setRecentQueries] = React.useState([]);
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
+  // Create a runQuery mutation
+  const runQuery = useMDEMutation("sql", { options: { remember: true } });
+
   const {
     data,
     isLoading,
@@ -178,19 +207,9 @@ const Page = () => {
     }
   }, [data]);
 
-  const handleDeleteQuery = async (queryToDelete) => {
-    setRecentQueries((prevQueries) =>
-      prevQueries.filter((query) => query !== queryToDelete),
-    );
-
-    // also remove the query from the database
-    await deleteQuery(queryToDelete);
-    refetchCommon();
-  };
-
   const handleExecuteQuery = async () => {
     if (sqlQuery.trim()) {
-      await runQuery(sqlQuery, { remember: true });
+      runQuery.mutate({ query: sqlQuery });
       setSqlQuery("");
       refetchCommon();
     } else {
@@ -200,15 +219,6 @@ const Page = () => {
 
   const handleSelectRecentQuery = (query) => {
     setSqlQuery(query);
-  };
-
-  const handleCopyToClipboard = async (query) => {
-    try {
-      await navigator.clipboard.writeText(query);
-      setSnackbarOpen(true);
-    } catch (err) {
-      console.error("Failed to copy: ", err);
-    }
   };
 
   const handleDownloadHistory = () => {
@@ -260,9 +270,9 @@ const Page = () => {
             <ListItem key={index}>
               <SqlHistoryItem
                 query={query}
-                onCopy={handleCopyToClipboard}
-                onDelete={handleDeleteQuery}
                 handleSelectRecentQuery={handleSelectRecentQuery}
+                setRecentQueries={setRecentQueries}
+                refetchCommon={refetchCommon}
               />
             </ListItem>
           ))}
