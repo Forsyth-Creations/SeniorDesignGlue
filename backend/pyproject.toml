@@ -16,6 +16,7 @@ black = "^24.10.0"
 pyinstaller = "^6.11.0"
 python-multipart = "^0.0.12"
 pyjwt = "^2.9.0"
+sql-metadata = "^2.14.0"
 
 
 [build-system]

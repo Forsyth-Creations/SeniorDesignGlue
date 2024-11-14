@@ -15,7 +15,7 @@ import {
   Button,
   Paper,
 } from "@mui/material";
-import { useSqlQuery } from "../../hooks/sqlHooks";
+import { useSqlQuery } from "@/hooks/sqlHooks";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -273,12 +273,14 @@ function ProjectOverviewBar({ project, onMoreInfoClick }) {
     AND teams.year = ${project.year};
   `;
 
+  const enabled = !!(project.semester && project.sequence && project.year);
+
   const { data: lockerData, error, isLoading } = useSqlQuery(query);
   const {
     data: data2,
     error: error2,
     isLoading: isLoading2,
-  } = useSqlQuery(query2);
+  } = useSqlQuery(query2, {}, { enabled: enabled });
 
   function handleMoreInfoClick() {
     if (onMoreInfoClick) {
@@ -295,7 +297,7 @@ function ProjectOverviewBar({ project, onMoreInfoClick }) {
   }
 
   let allStudentsHaveLabSafety = true;
-  for (let student of data2.data.results) {
+  for (let student of data2?.data?.results) {
     if (!student.lab_safety) {
       allStudentsHaveLabSafety = false;
       break;
@@ -390,7 +392,11 @@ function Student({ student }) {
 function Mentors({ semester, sequence, year }) {
   // Given the SME email, pull the name and other info from the database
   let query = `SELECT * FROM project_mentors WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
-  const { data, error, isLoading } = useSqlQuery(query);
+  const { data, error, isLoading } = useSqlQuery(
+    query,
+    {},
+    { enabled: !!(semester && sequence && year) },
+  );
 
   if (semester === "" || sequence === "" || year === "") {
     return null;
@@ -423,7 +429,14 @@ function Mentors({ semester, sequence, year }) {
 function LockerAssignment({ semester, sequence, year }) {
   // Given the SME email, pull the name and other info from the database
   let query = `SELECT * FROM lockers WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
-  const { data, error, isLoading } = useSqlQuery(query);
+
+  let enabled = !!(semester !== "" && sequence !== "" && year !== "");
+
+  const { data, error, isLoading } = useSqlQuery(
+    query,
+    {},
+    { enabled: enabled },
+  ); // The lockers query
 
   if (semester === "" || sequence === "" || year === "") {
     return null;
@@ -454,12 +467,19 @@ function CompanyAndCustomers({ semester, sequence, year }) {
   // Given the SME email, pull the name and other info from the database
   let query = `SELECT * FROM project_sponsors WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
   let query2 = `SELECT * FROM project_customers WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
-  const { data, error, isLoading } = useSqlQuery(query);
+
+  let enabled = !!(semester !== "" && sequence !== "" && year !== "");
+
+  const { data, error, isLoading } = useSqlQuery(
+    query,
+    {},
+    { enabled: enabled },
+  ); // The company query
   const {
     data: data2,
     error: error2,
     isLoading: isLoading2,
-  } = useSqlQuery(query2);
+  } = useSqlQuery(query2, {}, { enabled: enabled }); // The customers query
   if (semester === "" || sequence === "" || year === "") {
     return null;
   }
@@ -496,7 +516,14 @@ function CompanyAndCustomers({ semester, sequence, year }) {
 
 function ProjectDescription({ semester, sequence, year }) {
   let query = `SELECT * FROM projects WHERE semester = '${semester}' AND sequence = ${sequence} AND year = ${year};`;
-  const { data, error, isLoading } = useSqlQuery(query);
+
+  let enabled = !!(semester !== "" && sequence !== "" && year !== "");
+
+  const { data, error, isLoading } = useSqlQuery(
+    query,
+    {},
+    { enabled: enabled },
+  );
   if (semester === "" || sequence === "" || year === "") {
     return null;
   }
@@ -523,7 +550,14 @@ function ProjectDescription({ semester, sequence, year }) {
 
 function LabSafety({ semester, sequence, year }) {
   let query = `SELECT * FROM students INNER JOIN teams ON students.email = teams.student_email WHERE teams.semester = '${semester}' AND teams.sequence = ${sequence} AND teams.year = ${year};`;
-  const { data, error, isLoading } = useSqlQuery(query);
+
+  let enabled = !!(semester !== "" && sequence !== "" && year !== "");
+
+  const { data, error, isLoading } = useSqlQuery(
+    query,
+    {},
+    { enabled: enabled },
+  );
   if (semester === "" || sequence === "" || year === "") {
     return null;
   }

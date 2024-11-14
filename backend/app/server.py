@@ -13,7 +13,7 @@ from app.routers import sql, auth
 from app.common import verify_token
 
 app = FastAPI(
-    title="Senior Design Glue",
+    title="MDE Experience",
     version="0.1",
     description="API for the MDE",
     contact={"name": "Henry Forsyth", "email": "robert.h.forsyth@gmail.com"},
@@ -47,7 +47,6 @@ app.include_router(
     sql.router,
     tags=["sql"],
     prefix="/api",
-    dependencies=[Depends(verify_token)]
 )
 
 app.include_router(
