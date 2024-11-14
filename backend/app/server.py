@@ -10,6 +10,8 @@ from typing import Annotated
 # import the locations router
 from app.routers import sql, auth
 
+from app.common import verify_token
+
 app = FastAPI(
     title="Senior Design Glue",
     version="0.1",
@@ -45,6 +47,7 @@ app.include_router(
     sql.router,
     tags=["sql"],
     prefix="/api",
+    dependencies=[Depends(verify_token)]
 )
 
 app.include_router(

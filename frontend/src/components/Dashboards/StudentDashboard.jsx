@@ -7,6 +7,7 @@ import {
   Typography,
   Alert,
   Stack,
+  Container,
 } from "@mui/material";
 import { useSqlQuery } from "../../hooks/sqlHooks"; // Assuming you have this custom hook
 
@@ -117,7 +118,7 @@ const StudentDashboard = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
 
   return (
-    <Box p={4}>
+    <Container>
       <Typography variant="h4" mb={3}>
         Student Project Dashboard
       </Typography>
@@ -126,7 +127,7 @@ const StudentDashboard = () => {
 
       {/* Student Page */}
       {selectedStudent && <StudentPage studentEmail={selectedStudent.email} />}
-    </Box>
+    </Container>
   );
 };
 

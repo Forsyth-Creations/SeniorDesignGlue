@@ -4,10 +4,7 @@ from datetime import datetime, timedelta
 import jwt
 import os
 
-# Environment variables for security
-SECRET_KEY = os.environ.get("SECRET_KEY", "secret")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+from app.common import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 
 # Pydantic models for user input and token output

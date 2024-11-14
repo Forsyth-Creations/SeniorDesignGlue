@@ -2,14 +2,17 @@
 // write me a basic student page
 
 import React from "react";
-import StudentDashboard from "@/components/Dashboards/StudentDashboard";
+import TeamQuickStats from "@/components/Dashboards/TeamQuickStats";
 import NormalPageWrapper from "@/wrappers/NormalPageWrapper";
 import { ProtectedByAuth } from "@/contexts/AuthContext";
+import { Container } from "@mui/material";
 
 const StudentPage = () => {
   return (
     <NormalPageWrapper>
-      <StudentDashboard />
+      <Container>
+        <TeamQuickStats />
+      </Container>
     </NormalPageWrapper>
   );
 };
