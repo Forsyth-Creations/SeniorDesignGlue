@@ -43,7 +43,7 @@ const ProjectsPage = ({ params }) => {
         </Typography>
         <Stack spacing={2}>
           {data?.results?.map((project, index) => (
-            <ProjectCard project={project} letter={letter} number={number} />
+            <ProjectCard key = {index} project={project} letter={letter} number={number} />
           ))}
         </Stack>
       </Container>
