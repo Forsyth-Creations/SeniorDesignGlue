@@ -46,7 +46,15 @@ const StudentPage = ({ params }) => {
                     onClick={() =>
                       (window.location.href = `/cohorts/${project.semester}${shortYear}`)
                     }
-                    sx={{ textTransform: "none", p: "20px", fontSize: "3rem" }}
+                    sx={{ backgroundColor: "white", 
+                      color: "black", 
+                      textTransform: "none", 
+                      p: "20px", 
+                      fontSize: "3rem", 
+                      "&:hover": {
+                        backgroundColor: "#ccc", 
+                        color: "black",   },
+                      }} 
                   >
                     {cohortLabel}
                   </Button>
