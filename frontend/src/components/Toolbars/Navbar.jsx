@@ -184,6 +184,9 @@ export default function Navigation() {
               <Chip
                 component={Button}
                 label={`Current: ${WhichCohort()}`}
+                sx={{ color: (theme) => theme.palette.secondary.main,
+                  backgroundColor: (theme) => theme.palette.primary.light
+                 }}
                 onClick={() => handleOnClick(`/cohorts/${WhichCohort()}`)}
               > </Chip>
             </Tooltip>
