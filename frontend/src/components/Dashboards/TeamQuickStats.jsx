@@ -149,6 +149,7 @@ const TeamQuickStats = () => {
             label="Select Project"
             onChange={handleProjectChange}
             disabled={isProjectLoading || projectError}
+
           >
             {isProjectLoading ? (
               <MenuItem disabled>
@@ -173,7 +174,8 @@ const TeamQuickStats = () => {
         <Button
           onClick={() => handleProjectChange({ target: { value: "" } })}
           disabled={isProjectLoading || projectError || !selectedProject}
-          sx={{ whiteSpace: "nowrap" }}
+          sx={{ whiteSpace: "nowrap" ,             
+            }}
         >
           Clear
         </Button>

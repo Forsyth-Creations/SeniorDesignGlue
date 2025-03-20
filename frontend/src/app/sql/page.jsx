@@ -244,12 +244,24 @@ const Page = () => {
           fullWidth
           value={sqlQuery}
           onChange={(e) => setSqlQuery(e.target.value)}
-          sx={{ mb: 2 }}
+          sx={{ mb: 2 ,
+            backgroundColor: "#ccc", 
+            color: "black",
+          }}
         />
         <Button
           variant="contained"
           color="primary"
           onClick={handleExecuteQuery}
+          sx={{ backgroundColor: "white", 
+            color: "black", 
+            textTransform: "none", 
+            p: "3px", 
+            fontSize: "1rem", 
+            "&:hover": {
+              backgroundColor: "#ccc", 
+              color: "black",   },
+            }} 
         >
           Execute Query
         </Button>
@@ -257,7 +269,9 @@ const Page = () => {
           <IconButton
             color="primary"
             onClick={handleDownloadHistory}
-            sx={{ ml: 2 }}
+            sx={{ ml: 2,
+              color: "white",
+             }}
           >
             <DownloadIcon />
           </IconButton>

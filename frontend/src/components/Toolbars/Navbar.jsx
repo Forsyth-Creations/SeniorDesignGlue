@@ -14,6 +14,10 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { Button, Divider, List, ListItem, Stack, Chip } from "@mui/material";
 import { theme } from "@/wrappers/NormalPageWrapper";
 import { AuthContext } from "@/contexts/AuthContext";
+import { DarkmodeContext } from "@/contexts/ThemeProvider"
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import {useRouter} from "next/navigation"
 
 function WhichCohort() {
   // Check if we are in the spring semester or call semester
@@ -72,11 +76,26 @@ function WhichClass() {
   );
 }
 
+function DarkModeSwitch(props) {
+  const { isDark, setIsDark } = React.useContext(DarkmodeContext);
+
+  return (
+    <Box sx={props.sx}>
+      <Tooltip title="Toggle light/dark theme" placement="bottom">
+        <IconButton onClick={() => setIsDark(!isDark)} color="secondary">
+          {isDark ? <DarkModeIcon /> : <LightModeIcon />}
+        </IconButton>
+      </Tooltip>
+    </Box>
+  );
+}
+
 export default function Navigation() {
   const auth = React.useContext(AuthContext);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   const drawerWidth = 240;
+  const router = useRouter();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -95,6 +114,10 @@ export default function Navigation() {
     "Team Quick Stats",
     "Custom SQL Query",
   ];
+
+  function handleOnClick(href){
+    router.push(href)
+  }
 
   const drawer = (
     <div>
@@ -119,10 +142,10 @@ export default function Navigation() {
           }
           return (
             <ListItem
-              button
+              component = {Button}
               key={Object.keys(text)[0]}
-              component={Button}
-              href={Object.values(text)[0]}
+              // href={Object.values(text)[0]}
+              onClick = {() => handleOnClick(Object.values(text)[0])}
             >
               {Object.keys(text)[0]}
               {isAuthed && "*"}
@@ -137,7 +160,6 @@ export default function Navigation() {
     <Box sx={{ display: "flex" }}>
       <AppBar
         position="fixed"
-        sx={{ zIndex: theme.zIndex.drawer + 1 }}
         elevation={0}
       >
         <Toolbar
@@ -157,14 +179,19 @@ export default function Navigation() {
           <Typography variant="h6" noWrap>
             MDE Experience
           </Typography>
-          <Tooltip title={WhichClass()}>
-            <Chip
-              component={Button}
-              label={`Current: ${WhichCohort()}`}
-              color="secondary"
-              href={`/cohorts/${WhichCohort()}`}
-            />
-          </Tooltip>
+          <Stack direction="row" alignItems = "center">
+            <Tooltip title={WhichClass()}>
+              <Chip
+                component={Button}
+                label={`Current: ${WhichCohort()}`}
+                sx={{ color: (theme) => theme.palette.secondary.main,
+                  backgroundColor: (theme) => theme.palette.primary.light
+                 }}
+                onClick={() => handleOnClick(`/cohorts/${WhichCohort()}`)}
+              > </Chip>
+            </Tooltip>
+            <DarkModeSwitch />
+          </Stack>
         </Toolbar>
       </AppBar>
       <Drawer

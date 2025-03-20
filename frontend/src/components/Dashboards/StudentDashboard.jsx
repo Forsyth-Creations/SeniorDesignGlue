@@ -46,7 +46,9 @@ const StudentSearch = ({ onStudentSelect }) => {
       options={students}
       getOptionLabel={(option) => option.label}
       renderInput={(params) => (
-        <TextField {...params} label="Search Student" variant="outlined" />
+        <TextField {...params} label="Search Student" 
+
+        />
       )}
       onChange={(event, newValue) => onStudentSelect(newValue)}
       fullWidth
